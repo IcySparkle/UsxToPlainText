@@ -1,0 +1,146 @@
+{
+  "project": {
+    "name": "UsxToPlainText",
+    "description": "PowerShell script that converts USX / USFM / SFM scripture files into clean, styling-free plain text formatted for InDesign flow (paragraphs + poetry).",
+    "owner": "Yasutaka",
+    "state_version": "0.4.0",
+    "last_updated": "2025-12-10"
+  },
+
+  "script": {
+    "filename": "UsxToPlainText.ps1",
+    "language": "PowerShell",
+
+    "entry_parameters": {
+      "InputPath": "string (file or folder: .usx / .usfm / .sfm)",
+      "OutputFolder": "string (optional path for .txt output files)"
+    },
+
+    "current_behavior": {
+
+      "input_support": [
+        "Single USX (.usx)",
+        "Single USFM (.usfm)",
+        "Single SFM (.sfm)",
+        "Folder containing any mix of the above"
+      ],
+
+      "format_detection": "Determined by file extension: .usx (XML parser), .usfm/.sfm (marker parser)",
+
+      "output_strategy": "One .txt file per input scripture file, named <book>.txt, saved either next to input file or inside OutputFolder",
+
+      "text_model": {
+        "paragraph_handling": "Prose paragraphs (USX <para style='p'> etc. | USFM \\p, \\m, \\pi) are merged as one paragraph until next paragraph marker.",
+        "poetry_handling": {
+          "markers": ["q", "q1", "q2", "q3", "q4"],
+          "behavior": "Each poetry line begins on a new line. q1→minimum indent, q2→increased indent, q3/q4→deeper indent.",
+          "indentation": "Simple space-indentation: q1=0–2 spaces, q2=2–4 spaces, q3+=4+ spaces (configurable)."
+        },
+        "verse_handling": {
+          "model": "Inline verse-number insertion: each verse begins with '<v#> ' (example: '3. Beloved...')",
+          "usx": {
+            "start_marker": "verse/@sid",
+            "end_marker": "verse/@eid"
+          },
+          "usfm": {
+            "start_marker": "\\v N",
+            "end_behavior": "When next \\v marker appears"
+          }
+        }
+      },
+
+      "inline_handling": {
+        "remove_inline_tags": true,
+        "usx_char_elements": "Completely removed, content included unless style='sup'",
+        "usfm_inline_markers_removed": [
+          "\\bd", "\\bd*", "\\it", "\\it*",
+          "\\add", "\\add*", "\\nd", "\\nd*",
+          "\\wj", "\\wj*", "\\bdit", "\\bdit*",
+          "\\+bd", "\\+bd*", "\\+it", "\\+it*",
+          "\\+qt", "\\+qt*", "\\qt", "\\qt*"
+        ],
+        "superscript_suppression": {
+          "usx": "<char style='sup'>…</char> removed entirely",
+          "usfm": "\\sup ... \\sup* and \\+sup ... \\+sup* removed entirely"
+        },
+        "output_styling": "No styling. Only plain unified text."
+      },
+
+      "notes_handling": {
+        "remove_all_notes": true,
+        "usx_note_removal": "<note>…</note> fully suppressed",
+        "usfm_note_removal": [
+          "\\f ... \\f*",
+          "\\x ... \\x*"
+        ]
+      },
+
+      "subtitle_handling": {
+        "process_subtitles": false,
+        "comment": "Plain-text does not include pericopes/headings unless enabled later."
+      },
+
+      "file_encoding": "UTF-8 output",
+      "whitespace_normalization": "Collapse multiple spaces, trim lines, trim paragraphs"
+    },
+
+    "helpers": {
+      "Normalize-Whitespace": "Collapses all types of whitespace to a single space",
+      "Remove-Notes-USX": "Strips <note> nodes entirely",
+      "Remove-Notes-USFM": "Removes \\f…\\f* and \\x…\\x* blocks",
+      "Remove-InlineStyles-USFM": "Strips inline markers but preserves their text",
+      "Remove-Inline-USX": "Handles <char> stripping logic for USX",
+      "Process-PoetryLine": "Handles q, q1–4 indentation rules",
+      "Process-ParagraphText": "Merge prose paragraphs"
+    }
+  },
+
+  "conventions": {
+    "encoding": "UTF-8",
+    "linebreaks": "Windows-style CRLF or default PowerShell behavior",
+    "indentation": "Spaces, not tabs",
+    "poetry_indent_settings": {
+      "q1": 0,
+      "q2": 2,
+      "q3": 4,
+      "q4": 6
+    }
+  },
+
+  "known_limitations": [
+    "Does not output subtitles/pericope headings unless explicitly requested",
+    "Does not yet support exporting poetry with custom indentation profiles per publisher",
+    "Not round-trippable back to USX/USFM",
+    "Tables, lists, or special structures in USFM are not processed"
+  ],
+
+  "next_steps_todo": [
+    {
+      "id": "subtitle_support",
+      "description": "Optional feature to output subtitles (pericopes) into plain text.",
+      "status": "pending"
+    },
+    {
+      "id": "advanced_poetry",
+      "description": "Precise indentation rules configurable via JSON.",
+      "status": "pending"
+    },
+    {
+      "id": "bounded_paragraph_export",
+      "description": "Option to insert blank lines between paragraphs for InDesign import.",
+      "status": "pending"
+    },
+    {
+      "id": "custom_verse_prefix_format",
+      "description": "Allow user-defined verse prefix (e.g., 'v1 ', '(1) ', superscript numbers, etc.)",
+      "status": "pending"
+    }
+  ],
+
+  "usage_examples": {
+    "single_usx": ".\\UsxToPlainText.ps1 -InputPath \"C:\\Bible\\3JN.usx\"",
+    "single_usfm": ".\\UsxToPlainText.ps1 -InputPath \"C:\\Bible\\JHN.usfm\"",
+    "folder_mixed": ".\\UsxToPlainText.ps1 -InputPath \"C:\\Bible\\Sources\"",
+    "output_folder": ".\\UsxToPlainText.ps1 -InputPath \"C:\\Bible\\Sources\" -OutputFolder \"C:\\PlainText\""
+  }
+}
