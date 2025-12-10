@@ -27,7 +27,7 @@ This script converts USX / USFM / SFM Bible manuscripts into plain, styling‑fr
 
 ---
 
-## **0.3.0 — 2025-12-09**
+## **0.3.0 — 2025-12-10**
 ### ✨ Poetry Engine Added
 - Introduced `q`, `q1–q4` detection.
 - Poetry exported with newline separation.
@@ -35,7 +35,7 @@ This script converts USX / USFM / SFM Bible manuscripts into plain, styling‑fr
 
 ---
 
-## **0.2.0 — 2025-12-08**
+## **0.2.0 — 2025-12-10**
 ### 📄 Paragraph + Verse Handling
 - Verse numbers now inserted inline.
 - Paragraph merging for prose implemented.
@@ -43,7 +43,7 @@ This script converts USX / USFM / SFM Bible manuscripts into plain, styling‑fr
 
 ---
 
-## **0.1.0 — 2025-12-07**
+## **0.1.0 — 2025-12-10**
 ### 🎉 Initial Version
 - USX-only plain-text generator.
 - Removed inline tags, kept plain text only.
@@ -51,9 +51,3 @@ This script converts USX / USFM / SFM Bible manuscripts into plain, styling‑fr
 - Exported one `.txt` per `.usx` file.
 
 ---
-
-If you want:
-- automated release-note generation,  
-- a version badge for GitHub,  
-- or a combined changelog for the entire text-processing toolkit,  
-I can generate that as well.
